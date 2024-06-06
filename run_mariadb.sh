@@ -1,0 +1,1 @@
+/usr/local/mariadb-11.3.2-linux-systemd-x86_64/bin/mariadbd-safe --user=mysql &

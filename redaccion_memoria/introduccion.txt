@@ -1,0 +1,62 @@
+En el mercado y en la industria existen varios sistemas 
+gestores de bases de datos, tanto relacionales tipo SQL 
+y no relacionales, tipo árboles o grafos. Estos sistemas
+sirven para distintos requerimientos funcionales y no
+funcionales, por lo tanto, su elección requiere de una
+investigación previa respecto a su posible desempeño en
+el sistema objetivo que desea usar un software como el
+mencionado para sus propias especificaciones.
+
+El SPEL es el Laboratorio de exploración espacial y
+planetaria de la Universidad de Chile, 
+(por sus siglas en inglés). Este fabrica y 
+opera nanosatélites con fines investigativos. 
+Este,a la fecha 6 de junio de 2024, ha estado a cargo de
+cuatro satélites, desde su formación en diciembre de 2010
+y su puesta en marcha en marzo de 2011. Ha sacado múltiples
+publicaciones en el tema espacial [citar trabajos].
+
+El software es una parte importante en este laboratorio,
+debido a que los experimentos que se llevan a cabo 
+necesitan administrar información, dígase hacer operaciones
+CRUD (Create, Read, Update and Delete) sobre datos, especí-
+ficamente se necesitan las dos primeras. Además
+, para operar estas máquinas se necesita enviar telecomandos vía
+radiofrecuencia para poder acceder a esos datos que se 
+recopilan en el espacio. En la industria no existía software
+open source o libre que cumpla con las expectativas del 
+proyecto [citar paper carlos], habiendo varios privativos.
+. Por lo tanto, fue necesario
+hacer un software que permita cumplir con sus requisitos y
+así nació el SUCHAI Flight Software.
+
+Para trabajar con datos, se necesita un sistema gestor de 
+bases de datos que cumpla con todos los requisitos del
+software objetivo en el que se desea usar. El que se 
+escogió durante la fase de concepción fue
+SQLITE v3. Esta decisión fue tomada hace más de una década y 
+considerando que los sistemas evolucionan, es necesario
+ver qué sistemas pueden desempeñar mejor para los objetivos
+de los proyectos que se quieren realizar o mantener. Por lo 
+tanto, una decisión sobre un sistema que se escogió hace
+varios años atrás servía en ese momento, pero como estos 
+van mejorando, es necesario investigar qué sistemas se
+adecuan mejor a sus especificidades. Es por esto que 
+este trabajo de título estudia el desempeño de
+tres sistemas populares (según https://db-engines.com/en/ranking/relational+dbms) 
+que cumplen con las operaciones Create y Read de bases de 
+datos para los objetivos del flight software mencionado, estos
+son PostgreSQL, MariaDB y SQLite 3. Esta elección no es al azar, 
+porque estos sistemas son muy usados en la industria y 
+uno de los requerimientos es que sean Open Source o 
+Software Libre, ya que se usa para fines no comerciales.
+
+Este trabajo se divide en (cuatro) partes. En la primera 
+sección, se hace un estudio preliminar para saber si existe 
+alguna ventaja, en cuanto a tiempo de ejecución de consultas,
+en la elección de un sistema. En la segunda parte, 
+se integran estos sistemas en el SUCHAI Flight Software.
+En la tercera parte se hacen pruebas con 
+casos de usos reales. Finalmente, en las conclusiones se
+especifica qué sistema se debe usar y por qué.
+
