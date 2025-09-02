@@ -102,7 +102,7 @@ void perform_operation(double stats[], database_single_operation op){
          "chaochao33356",   // User password
          "test_databases",               // Default database
          3306,                 // Port number
-        "/tmp/mysql.sock",                 // Path to socket file
+        "/run/mysqld/mysqld.sock",                 // Path to socket file
          0                     // Additional options
       ))
    {

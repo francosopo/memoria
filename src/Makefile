@@ -30,7 +30,7 @@ sqlite: sqlite.o stats.o data_source.o
 	${CC} ${CFLAGS} ${INCLUDE_DIR} stats.o sqlite_obj data_source.o ${MAIN_FILE} -o sqlite_out -lgsl -lgslcblas -lm -lsqlite3
 
 mariadb.o:
-	${CC} ${CFLAGS} ${INCLUDE_DIR} -I/usr/local/mysql/include/mysql -c -o mariadb_obj ${MARIADB_SRC}
+	${CC} ${CFLAGS} ${INCLUDE_DIR} -I/usr/include/mariadb -I/usr/include/mariadb/mysql -L/usr/lib/x86_64-linux-gnu -c -o mariadb_obj ${MARIADB_SRC}
 
 mariadb: stats.o mariadb.o data_source.o
 	${CC} ${CFLAGS} ${INCLUDE_DIR} stats.o mariadb_obj data_source.o ${MAIN_FILE} -o mariadb_out -lmariadb -lgsl -lgslcblas -lm

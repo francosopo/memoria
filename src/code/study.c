@@ -14,7 +14,6 @@ void perform(FILE *out){
         double var = the_var(data[k], N_STATS);
         fprintf(out, "%.9lf,%.9lf,%.9lf,%.9lf,%.9lf,%.9lf\n",avg, std,min,max,med,var);
     }
-    
 }
 
 int main(int argc, char *argv[]){
