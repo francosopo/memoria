@@ -23,10 +23,41 @@ void setUpDatabase(void *driver){
     ExecStatusType got = PQresultStatus(res);
     close_connection(conn, res, PGRES_COMMAND_OK, got, "drop table");
     PQclear(res);
+    PGresult *res = PQexec(conn, "DROP TABLE IF EXISTS test_table2");
+    ExecStatusType got = PQresultStatus(res);
+    close_connection(conn, res, PGRES_COMMAND_OK, got, "drop table2");
+    PQclear(res);
     PGresult *res2 = PQexec(conn, "CREATE TABLE IF NOT EXISTS test_table(id SERIAL, field1 INTEGER, field2 DOUBLE PRECISION, field3 INTEGER, field4 DOUBLE PRECISION, field5 INTEGER, field6 DOUBLE PRECISION)");
     ExecStatusType got2 = PQresultStatus(res2);
     close_connection(conn, res2, PGRES_COMMAND_OK, got2, "create table");
     PQclear(res2);
+    PGresult *res2 = PQexec(conn, "CREATE TABLE IF NOT EXISTS test_table2(id SERIAL, field1 INTEGER, field2 DOUBLE PRECISION, field3 INTEGER, field4 DOUBLE PRECISION, field5 INTEGER, field6 DOUBLE PRECISION)");
+    ExecStatusType got2 = PQresultStatus(res2);
+    close_connection(conn, res2, PGRES_COMMAND_OK, got2, "create table2");
+    PQclear(res2);
+
+    //inserting mock data into table2
+    for (int i = 0; i < N_STATS; i++){
+        insert_mock_data_table2(conn);
+    }
+}
+
+void insert_mock_data_table2(void *driver){
+    char *query = "INSERT INTO test_table2(field1, field2, field3, field4, field5, field6) VALUES ($1, $2, $3, $4, $5, $6)";
+    const Oid paramTypes[6] = {23,701,23,701,23,701};
+    char theNumbers[6][10];
+    for (int i = 0; i < 6; i++){
+        if ((i & 1) == 0){
+            snprintf(theNumbers[i],10, "%i", get_random_int());
+            //fprintf(stdout, "%s\n", theNumbers[i]);
+        }else{
+            snprintf(theNumbers[i],10, "%f", get_random_double());
+            //fprintf(stdout, "%s\n", theNumbers[i]);
+        }
+    }
+    const char * const inputs[6] = {theNumbers[0], theNumbers[1], theNumbers[2], theNumbers[3], theNumbers[4], theNumbers[5]};
+    const int paramLengths[6] = {4,8,4,8,4,8};
+    return executer(driver,query,6,paramTypes, inputs, paramLengths, NULL, 0, PGRES_COMMAND_OK, "insert");
 }
 
 int executer(void *driver, char *query, int nParams,const Oid *paramTypes, const char *const *paramValues,const int *paramLengths, const int *paramFormats, int resFormat, ExecStatusType expectedResult, char *msg){ // char *query, ExecStatusType expectedResult){

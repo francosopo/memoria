@@ -35,11 +35,46 @@ void setUpDatabase(void *driver){
     if (rc != SQLITE_OK){
         close_exec_connection(driver, errMsg, rc);
     }
+    int rc = sqlite3_exec(db, "DROP TABLE IF EXISTS test_table2",NULL, NULL, &errMsg);
+    if (rc != SQLITE_OK){
+        close_exec_connection(driver, errMsg, rc);
+    }
     rc = sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS test_table(id INTEGER, field1 DOUBLE, field2 INTEGER, field3 DOUBLE, field4 INTEGER, field5 DOUBLE, field6 INTEGER)", NULL, NULL, &errMsg);
     if (rc != SQLITE_OK){
         close_exec_connection(driver, errMsg, rc);
     }
+    rc = sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS test_table2(id INTEGER, field1 DOUBLE, field2 INTEGER, field3 DOUBLE, field4 INTEGER, field5 DOUBLE, field6 INTEGER)", NULL, NULL, &errMsg);
+    if (rc != SQLITE_OK){
+        close_exec_connection(driver, errMsg, rc);
+    }
+    // insert mock data into table2
+    for (int i = 0; i < N_STATS; i++){
+        insert_mock_data_table2(db);
+    }
     sqlite3_free(errMsg);
+}
+
+void insert_mock_data_table2(void *driver){
+    sqlite3_stmt *stmt;
+    char query[MAX_SQL_LENGTH] = "INSERT INTO test_table2(id, field1, field2, field3, field4, field5, field6) VALUES (?1,?2,?3,?4,?5,?6,?7)";
+    prepare(driver, query,(void**) &stmt);
+    sqlite3_bind_int(stmt, 1,id);
+    int rc;
+    for (int i = 2; i < N_ARGS; i++){
+        if ((i & 1) == 0){ // it is even, so it will bind an integer
+            int b = get_random_int();
+            rc = sqlite3_bind_int(stmt, i, b);
+            if (rc != SQLITE_OK){
+                close_connection(driver, stmt, "error while binding param", rc);
+            }
+        }else{
+            rc = sqlite3_bind_double(stmt, i, get_random_double());
+            if (rc != SQLITE_OK){
+                close_connection(driver, stmt, "error while binding param", rc);
+            }
+        }
+    }
+    return executer(driver,stmt);
 }
 
 int executer(void *driver, void *stmt){
