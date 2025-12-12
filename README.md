@@ -24,4 +24,23 @@ Create a config.h file and locate it inside src/include with the following varia
 #define PASSWORD 
 #define DATABASE
 ```
+# RUN
 
+Execute 
+```sh
+make psql
+make mariadb
+make sqlite
+```
+The executables are named as follows:
+
+1. psql_out
+2. mariadb_out
+3. sqlite_out
+
+And the stats file follow the structure below:
+
+avg [sec], std[sec], min[sec], max[sec], median[sec], var[sec]
+
+Each line corresponds to 
+INSERT, SELECT and UPDATE operations
