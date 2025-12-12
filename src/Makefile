@@ -6,6 +6,7 @@ BENCHMARK_FILE=benchmark.c
 PSQL_SRC=${DBMS_FOLDER}/psql/${BENCHMARK_FILE}
 MARIADB_SRC=${DBMS_FOLDER}/mariadb/${BENCHMARK_FILE}
 SQLITE_SRC=${DBMS_FOLDER}/sqlite/${BENCHMARK_FILE}
+LIBSTATS= -I/usr/include 
 
 STATS_FILE=./stats/stats.c
 
@@ -15,25 +16,25 @@ data_source.o:
 	${CC} ${CFLAGS} ${INCLUDE_DIR} -c ./data_source/src/gen_data.c -o data_source.o
 
 stats.o:
-	${CC} ${CFLAGS} ${INCLUDE_DIR} -c ${STATS_FILE} -o stats.o
+	${CC} ${CFLAGS} ${INCLUDE_DIR} ${LIBSTATS} -c ${STATS_FILE} -lgsl -lgslcblas -o stats.o	
 
 psql.o:
 	${CC} ${CFLAGS} ${INCLUDE_DIR} -I/usr/include/postgresql -c -o psql_obj ${PSQL_SRC} 
 
 psql: stats.o psql.o data_source.o
-	${CC} ${CFLAGS} ${INCLUDE_DIR} stats.o psql_obj data_source.o ${MAIN_FILE} -o psql_out -lgsl -lgslcblas -lm -lpq
+	${CC} ${CFLAGS} ${INCLUDE_DIR} stats.o psql_obj data_source.o ${MAIN_FILE} -o psql_out -lm -lpq -lgsl -lgslcblas
 
 sqlite.o:
 	${CC} ${CFLAGS} ${INCLUDE_DIR} -c -o sqlite_obj ${SQLITE_SRC}
 
 sqlite: sqlite.o stats.o data_source.o
-	${CC} ${CFLAGS} ${INCLUDE_DIR} stats.o sqlite_obj data_source.o ${MAIN_FILE} -o sqlite_out -lgsl -lgslcblas -lm -lsqlite3
+	${CC} ${CFLAGS} ${INCLUDE_DIR} ${LIBSTATS} stats.o sqlite_obj data_source.o ${MAIN_FILE} -o sqlite_out -lm -lsqlite3 -lgsl -lgslcblas
 
 mariadb.o:
 	${CC} ${CFLAGS} ${INCLUDE_DIR} -I/usr/include/mariadb -I/usr/include/mariadb/mysql -L/usr/lib/x86_64-linux-gnu -c -o mariadb_obj ${MARIADB_SRC}
 
 mariadb: stats.o mariadb.o data_source.o
-	${CC} ${CFLAGS} ${INCLUDE_DIR} stats.o mariadb_obj data_source.o ${MAIN_FILE} -o mariadb_out -lmariadb -lgsl -lgslcblas -lm
+	${CC} ${CFLAGS} ${INCLUDE_DIR} ${LIBSTATS} stats.o mariadb_obj data_source.o ${MAIN_FILE} -o mariadb_out -lmariadb -lm -lgsl -lgslcblas
 
 clean:
 	rm -f psql_obj
@@ -43,3 +44,4 @@ clean:
 	rm -f sqlite_out
 	rm -f mariadb_out
 	rm -f stats.o
+	rm -rf data_source.o

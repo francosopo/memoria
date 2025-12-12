@@ -1,6 +1,6 @@
 #include <operations.h>
 #include <libpq-fe.h>
-
+#include <config.h>
 
 void get_filename(char *name, int length){
     snprintf(name, length, "psql.csv");
@@ -23,16 +23,16 @@ void setUpDatabase(void *driver){
     ExecStatusType got = PQresultStatus(res);
     close_connection(conn, res, PGRES_COMMAND_OK, got, "drop table");
     PQclear(res);
-    PGresult *res = PQexec(conn, "DROP TABLE IF EXISTS test_table2");
-    ExecStatusType got = PQresultStatus(res);
+    res = PQexec(conn, "DROP TABLE IF EXISTS test_table2");
+    got = PQresultStatus(res);
     close_connection(conn, res, PGRES_COMMAND_OK, got, "drop table2");
     PQclear(res);
     PGresult *res2 = PQexec(conn, "CREATE TABLE IF NOT EXISTS test_table(id SERIAL, field1 INTEGER, field2 DOUBLE PRECISION, field3 INTEGER, field4 DOUBLE PRECISION, field5 INTEGER, field6 DOUBLE PRECISION)");
     ExecStatusType got2 = PQresultStatus(res2);
     close_connection(conn, res2, PGRES_COMMAND_OK, got2, "create table");
     PQclear(res2);
-    PGresult *res2 = PQexec(conn, "CREATE TABLE IF NOT EXISTS test_table2(id SERIAL, field1 INTEGER, field2 DOUBLE PRECISION, field3 INTEGER, field4 DOUBLE PRECISION, field5 INTEGER, field6 DOUBLE PRECISION)");
-    ExecStatusType got2 = PQresultStatus(res2);
+    res2 = PQexec(conn, "CREATE TABLE IF NOT EXISTS test_table2(id SERIAL, field1 INTEGER, field2 DOUBLE PRECISION, field3 INTEGER, field4 DOUBLE PRECISION, field5 INTEGER, field6 DOUBLE PRECISION)");
+    got2 = PQresultStatus(res2);
     close_connection(conn, res2, PGRES_COMMAND_OK, got2, "create table2");
     PQclear(res2);
 
@@ -40,6 +40,15 @@ void setUpDatabase(void *driver){
     for (int i = 0; i < N_STATS; i++){
         insert_mock_data_table2(conn);
     }
+}
+
+int executer(void *driver, char *query, int nParams,const Oid *paramTypes, const char *const *paramValues,const int *paramLengths, const int *paramFormats, int resFormat, ExecStatusType expectedResult, char *msg){ // char *query, ExecStatusType expectedResult){
+    PGconn *conn = (PGconn*) driver;
+    PGresult *res = PQexecParams(conn,query, nParams, paramTypes, paramValues, paramLengths, paramFormats, resFormat );
+    ExecStatusType resultType = PQresultStatus(res);
+    close_connection(conn, res, expectedResult, resultType, msg);
+    PQclear(res);
+    return 0;
 }
 
 void insert_mock_data_table2(void *driver){
@@ -57,17 +66,10 @@ void insert_mock_data_table2(void *driver){
     }
     const char * const inputs[6] = {theNumbers[0], theNumbers[1], theNumbers[2], theNumbers[3], theNumbers[4], theNumbers[5]};
     const int paramLengths[6] = {4,8,4,8,4,8};
-    return executer(driver,query,6,paramTypes, inputs, paramLengths, NULL, 0, PGRES_COMMAND_OK, "insert");
+    executer(driver,query,6,paramTypes, inputs, paramLengths, NULL, 0, PGRES_COMMAND_OK, "insert");
 }
 
-int executer(void *driver, char *query, int nParams,const Oid *paramTypes, const char *const *paramValues,const int *paramLengths, const int *paramFormats, int resFormat, ExecStatusType expectedResult, char *msg){ // char *query, ExecStatusType expectedResult){
-    PGconn *conn = (PGconn*) driver;
-    PGresult *res = PQexecParams(conn,query, nParams, paramTypes, paramValues, paramLengths, paramFormats, resFormat );
-    ExecStatusType resultType = PQresultStatus(res);
-    close_connection(conn, res, expectedResult, resultType, msg);
-    PQclear(res);
-    return 0;
-}
+
 
 int select(void *driver, int id){
     //PGconn *conn = (PGconn*) driver;
@@ -116,7 +118,9 @@ int update(void *driver, int id){
 }*/
 
 void perform_operation(double stats[], database_single_operation op){
-    PGconn *conn = PQconnectdb("host=localhost port=5432 dbname=study_databases user=study_user password=chaochao33356 sslmode=allow");
+    char connection_string[500];
+    snprintf(connection_string, 500, "host=%s port=%d dbname=%s user=%s password=%s sslmode=disable", HOST, PSQL_PORT, DATABASE, USER, PASSWORD);
+    PGconn *conn = PQconnectdb(connection_string);
     ConnStatusType status = PQstatus(conn);
 
     if (status == CONNECTION_OK){

@@ -1,7 +1,10 @@
 #include <operations.h>
 #include <sqlite3.h>
+#include <config.h>
 
 #define N_ARGS 7
+
+int executer(void *driver, void *stmt);
 
 void get_filename(char *name, int length){
     snprintf(name, length, "sqlite.csv");
@@ -35,7 +38,7 @@ void setUpDatabase(void *driver){
     if (rc != SQLITE_OK){
         close_exec_connection(driver, errMsg, rc);
     }
-    int rc = sqlite3_exec(db, "DROP TABLE IF EXISTS test_table2",NULL, NULL, &errMsg);
+    rc = sqlite3_exec(db, "DROP TABLE IF EXISTS test_table2",NULL, NULL, &errMsg);
     if (rc != SQLITE_OK){
         close_exec_connection(driver, errMsg, rc);
     }
@@ -54,11 +57,11 @@ void setUpDatabase(void *driver){
     sqlite3_free(errMsg);
 }
 
-void insert_mock_data_table2(void *driver){
+void insert_mock_data_table(void *driver){
     sqlite3_stmt *stmt;
-    char query[MAX_SQL_LENGTH] = "INSERT INTO test_table2(id, field1, field2, field3, field4, field5, field6) VALUES (?1,?2,?3,?4,?5,?6,?7)";
+    char query[MAX_SQL_LENGTH] = "INSERT INTO test_table(id, field1, field2, field3, field4, field5, field6) VALUES (?1,?2,?3,?4,?5,?6,?7)";
     prepare(driver, query,(void**) &stmt);
-    sqlite3_bind_int(stmt, 1,id);
+    sqlite3_bind_int(stmt, 1, get_random_database_index());
     int rc;
     for (int i = 2; i < N_ARGS; i++){
         if ((i & 1) == 0){ // it is even, so it will bind an integer
@@ -74,7 +77,30 @@ void insert_mock_data_table2(void *driver){
             }
         }
     }
-    return executer(driver,stmt);
+    executer(driver,stmt);
+}
+
+void insert_mock_data_table2(void *driver){
+    sqlite3_stmt *stmt;
+    char query[MAX_SQL_LENGTH] = "INSERT INTO test_table2(id, field1, field2, field3, field4, field5, field6) VALUES (?1,?2,?3,?4,?5,?6,?7)";
+    prepare(driver, query,(void**) &stmt);
+    sqlite3_bind_int(stmt, 1, get_random_database_index());
+    int rc;
+    for (int i = 2; i < N_ARGS; i++){
+        if ((i & 1) == 0){ // it is even, so it will bind an integer
+            int b = get_random_int();
+            rc = sqlite3_bind_int(stmt, i, b);
+            if (rc != SQLITE_OK){
+                close_connection(driver, stmt, "error while binding param", rc);
+            }
+        }else{
+            rc = sqlite3_bind_double(stmt, i, get_random_double());
+            if (rc != SQLITE_OK){
+                close_connection(driver, stmt, "error while binding param", rc);
+            }
+        }
+    }
+    executer(driver,stmt);
 }
 
 int executer(void *driver, void *stmt){
@@ -144,7 +170,9 @@ int update(void *driver, int id){
 
 void perform_operation(double stats[], database_single_operation op){
     sqlite3 *db;
-    int rc = sqlite3_open("study_databases.db", &db);
+    char dbname[100];
+    snprintf(dbname, 100, "%s.db", DATABASE);
+    int rc = sqlite3_open(dbname, &db);
     if (rc) {
         fprintf(stderr, "Cannot open database: %s", sqlite3_errmsg(db));
         sqlite3_close(db);

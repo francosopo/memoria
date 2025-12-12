@@ -5,22 +5,7 @@ void perform(FILE *out){
     p_operation ops[N_OPS] = {
             &perform_insert,
             &perform_select,
-            &perform_select_with_index,
-            &perform_select_with_index_hash,
-            &perform_select_from_where_inner_join,
-            &perform_select_from_where_inner_join_with_index,
-            &perform_select_from_where_inner_join_with_index_hash,
-            &perform_select_from_where_outer_join,
-            &perform_select_from_where_outer_join_with_index,
-            &perform_select_from_where_outer_join_with_index_hash,
-            &perform_select_from_where_right_join,
-            &perform_select_from_where_right_join_with_index,
-            &perform_select_from_where_right_join_with_index_hash,
-            &perform_select_from_where_left_join,
-            &perform_select_from_where_left_join_with_index,
-            &perform_select_from_where_left_join_with_index_hash,
             &perform_update,
-            &perform_delete
 };
     double data[N_STATS][N_OPS];
     for (int k = 0; k < N_OPS; k++){
