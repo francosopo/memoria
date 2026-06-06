@@ -17,12 +17,12 @@ Create the user, database and grant all permissions to the user inside that data
 Create a config.h file and locate it inside src/include with the following variables:
 
 ```c
-#define HOST
-#define PSQL_PORT 
-#define MARIADB_PORT 
-#define USER 
-#define PASSWORD 
-#define DATABASE
+#define HOST "<your-host>"
+#define PSQL_PORT <your-psql-port>
+#define MARIADB_PORT <your-mariadb-port>
+#define USER "<your-db-user>"
+#define PASSWORD "<your-db-password>"
+#define DATABASE "<your-db-name>
 ```
 # RUN
 
